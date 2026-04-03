@@ -1,0 +1,41 @@
+//how many users are active?
+[
+    { //first stage or query
+        $match :{
+            isActive: true
+        }
+    },
+    {//second stage or query
+        $count : "activeUsers"   // activeUsers:317
+    }
+]
+
+// What is the average age of all users?
+[{
+    $group:{
+        _id:null,//_id: null means:Treat all documents as one group if $id: "$age" then group age field  only  group Apple, A → add 1  C → add 1 👉 $sum: 1 → 1 + 1 = 2
+        average:{
+            $avg: "$age" // average:30
+
+        }
+    }
+}]
+
+//List the top 5 most common favorite fruits among the users?
+[
+    {
+        $group:{
+            _id:"$favoriteFruit",
+            count : {
+                $sum : 1 //“For every document in the group, add 1.”
+            }
+        }
+    },
+    {
+        $sort:{        //👉 $sort is used to order the documents in the pipeline.
+            count: -1  //-1 → descending order (highest → lowest), 1 → ascending order (lowest → highest)
+        }
+    },{
+        $limit :5       //“Return only the first 5 documents from the pipeline result.”
+    }
+]
