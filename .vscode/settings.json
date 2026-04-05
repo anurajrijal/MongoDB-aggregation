@@ -1,8 +1,0 @@
-{
-    "mdb.presetConnections": [
-        {
-            "name": "Preset Connection",
-            "connectionString": "mongodb+srv://anurajrijal:anuraj123@cluster0.xuypj0p.mongodb.net/"
-        }
-    ]
-}

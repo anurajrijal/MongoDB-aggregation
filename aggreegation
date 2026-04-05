@@ -1,3 +1,6 @@
+db.collectionName.aggregate([]) 
+
+
 //how many users are active?
 [
     { //first stage or query
@@ -39,3 +42,90 @@
         $limit :5       //“Return only the first 5 documents from the pipeline result.”
     }
 ]
+
+//find the total number of males and females
+[{
+    $group:{
+        _id:"$gender",
+        genderCount:{
+            $sum: 1    // here $count(count how many documents are in a pipeline) count total documents where as $sum(Add 1 or each document in a group ) count or add values per group 
+        }
+    }
+}]
+
+//Which country has the highest number of registered users?
+[
+    {
+        $group:{
+            _id:"$company.location.country",
+            userCount:{
+                $sum: 1
+            }
+        }
+    },
+    {
+        $sort:{
+            userCount: -1
+        }
+    },
+    {
+        $limit: 1
+    }
+]
+
+//List all the uniqure eye colors present in the collection
+
+[
+    {
+        $group:{
+            _id:"$eyeColor"
+        }
+    }
+]
+
+// What is the average number of tags per user?
+
+[
+    {
+        $unwind:"tags"  //Break an array into multiple documents, 1 document with array → becomes multiple documents, Each element becomes its own document
+    },
+    {
+        $group:{
+            _id:"$_id",
+            numberOfTags:{
+                $sum: 1
+            }
+        }
+    },
+    {
+        $group:{
+            _id:null,
+            averageTags:{
+                $avg:"$numberOfTags",
+            }
+        }
+    }
+]
+                        // ****OR****
+[
+{
+    $addFields:{
+        numberOfTags:{
+            $size:{       //$size counts elements in array
+                $ifNull:["$tags",[]] 
+            }
+        }
+    }
+},
+{
+    $group:{
+        _id:null,
+        averageNumberOfTags:{
+            $avg:"$numberOfTags"
+        }
+    }
+}
+]
+
+
+
