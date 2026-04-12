@@ -127,5 +127,116 @@ db.collectionName.aggregate([])
 }
 ]
 
+//How many users have 'enim' as one of their tags?
+[{
+    $match:{            //Filters documents based on a specified query predicate. Matched documents are passed to the next pipeline stage.
+        tags:"enim"
+    }
+},{
+    $count: "userWithEnimTags"
+}
+]
+
+//What are the names and age of users who are inactive and have velit as a tag?
+[
+    {
+        $match:{
+            isActive: false,
+            tags:"velit"
+        },
+        $project:{  //Passes along the documents with the requested fields to the next stage in the pipeline. The specified fields can be existing fields from the input documents or newly computed fields.
+            name:1,
+            age:1
+        }
+    }
+]
+
+//How many users have a phone number starting with "=1 (940)"?
+[
+  {
+    $match: {
+      "company.phone": /^\+1 \(940\)/
+    }
+  },
+ {
+  $count:"userswithSpecialPhoneNumber"
+  }
+]
+
+//Who has registered the most recently?
+[
+    {
+        $sort:{
+            registered: -1
+        }
+    },{$limit: 5},{
+        $project:{
+            name:1,
+            registered:1,
+            favoriteFruit:1,
+        }
+    }
+]
+//Categorize users by their favoruite fruit?
+[
+  {
+    $group: {
+      _id:"$favoriteFruit",
+     users:{$push:"$name"}
+    }
+  }
+]
 
 
+//how many users have 'ad' as the second tag in their list of tags?
+[
+  {
+    $match: {
+     "tags.1":"ad"
+    }
+  },{
+    $count: "secondTagAd"
+  }
+]
+
+// find users who have both 'enim' and 'id' as their tags
+[
+  {
+   $match:{
+     tags:{
+        $all:["enim", "id"]  //The $all operator selects the documents where the value of a field matches all specified values. The matched documents can either contain a field with a value that is an array containing all the specified elements, or a field with a single value matching the specified element.
+    }
+   }
+  }
+]
+//List all companies located in the USA with their corresponding user count
+[
+  {
+   $match: {
+     "company.location.country":"USA"
+   } 
+  },
+  {
+    $group:{
+      _id:"$company.title",
+      userCount:{$sum: 1}
+    }
+  }
+]
+
+//$lookup
+[{
+  $lookup: {
+    from: "authors",
+    localField: "author_id",
+    foreignField: "_id",
+    as: "author_details"
+  }
+},{
+  $addFields: {
+    author_details: {
+      $arrayElemAt:["$author_details",0]
+    }
+  }
+}
+]
